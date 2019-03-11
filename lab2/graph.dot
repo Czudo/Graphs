@@ -1,0 +1,17 @@
+strict graph{
+"Alice" -- "Bob"
+"Alice" -- "Carl"
+"Alice" -- "David"
+"Alice" -- "Ernst"
+"Alice" -- "Frank"
+"Bob" -- "Gail"
+"Gail" -- "Irene"
+"Gail" -- "Harry"
+"Gail" -- "Jen"
+"Irene" -- "Jen"
+"Irene" -- "Harry"
+"Carl" -- "David"
+"Carl" -- "Frank"
+"Harry" -- "Jen"
+"Ernst" -- "Frank"
+}
