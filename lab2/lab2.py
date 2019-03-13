@@ -37,13 +37,13 @@ class Graph:
             self.addVertex(fromVert)
         if toVert not in self.vertices.keys():
             self.addVertex(toVert)
-        self.vertices[fromVert].addNeighbour(self.vertices[toVert], weight) #add conection from 'a' to 'b'
-        self.vertices[toVert].addNeighbour(self.vertices[fromVert], weight) #add conection from 'b' to 'a'
+        self.vertices[fromVert].addNeighbour(self.vertices[toVert], weight)
+        self.vertices[toVert].addNeighbour(self.vertices[fromVert], weight)
 
 
     def addEdgesFromList(self, edgeList):
         for edge in edgeList:
-            if len(edge) == 2: #if weight is not given (its default)
+            if len(edge) == 2: #if weight is not given (so its default
                 self.addEdge(edge[0], edge[1])
             else:
                 self.addEdge(edge[0], edge[1], edge[2])
@@ -57,12 +57,12 @@ class Graph:
     def getVertices(self):
         return list(self.vertices.keys())
 
-    def getEdges(self):
+    def getEdges(self): #
         list = []
         for k in self.vertices.keys():
             vert=self.vertices[k]
             for n in vert.getNeighbours():
-                if ((n.name, vert.name, vert.getWeight(self.vertices[n.name])) not in list): #get conections only from above diagonal
+                if ((n.name, vert.name, vert.getWeight(self.vertices[n.name])) not in list):
                     list.append((vert.name, n.name,  vert.getWeight(self.vertices[n.name])))
         return list
 
@@ -90,7 +90,7 @@ class Graph:
         start = self.vertices[fromVert]
         neighbours = start.getNeighbours()
         path = path + [start.name]
-        if fromVert == toVert: #if
+        if fromVert == toVert:
             return [path]
         if not neighbours:
             return
@@ -122,17 +122,16 @@ class Graph:
     def getShortestPaths(self, fromVert):
         vertices = self.getVertices()
         paths = {}
-        message = "Shortest path from vert " + fromVert +" to:\n"
+        message = "Shortest paths from vert '" + fromVert +"' to:\n"
         for vert in vertices:
             if vert != fromVert:
                 paths[vert]=self._getShortestPaths(fromVert, vert)
-                message+= vert + ": weight=" +  str(list(paths[vert])[0]) + ", path: "
-                for i in list(paths[vert])[1]:
-                     message+= str(i) + ", "
+                message += "'" + vert + "': weight=" + str(list(paths[vert])[0]) + ", list of paths: "
+                message += str(list(paths[vert])[1])
                 message += "\n"
             else:
-                message+= vert + ": weight=0, path: ['"+vert+"']\n"
-        with open("path_from_"+ fromVert + ".txt", "w") as f:
+                message += "'" + vert + "': weight=0, path: [['" + vert + "']]\n"
+        with open("paths_from_"+ fromVert + ".txt", "w") as f:
             f.write(message)
         return message
 
@@ -140,8 +139,8 @@ class Graph:
 
 if __name__ == "__main__":
     G = Graph()
-    edges=[ ("Bob", "Gail"), ("Irene", "Gail"),
-            ("Gail", "Harry"), ("Irene", "Jen"),
+    edges=[("Bob", "Gail"), ("Irene", "Gail"),
+           ("Gail", "Harry"), ("Irene", "Jen"),
            ("Alice", "David"), ("Harry", "Jen"), ("Ernst", "Frank"),
            ("Alice", "Ernst"), ("Jen","Gail"), ("David", "Carl"),
            ("Alice", "Frank"), ("Harry", "Irene"), ("Carl", "Frank")]
@@ -153,5 +152,3 @@ if __name__ == "__main__":
     print(G.getShortestPaths('Alice'))
     G.saveGraph("testGraph")
     G.open("testGraph")
-
-    print(G)
