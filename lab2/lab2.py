@@ -3,7 +3,7 @@ from graphviz import Source
 import os
 os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin/' #without that graphviz didn't work
 
-class GraphVertex():
+class Vertex():
     def __init__(self, name):
         self.name = name
         self.neighbours = {}
@@ -21,48 +21,48 @@ class GraphVertex():
         return self.name
 
 class Graph:
-    def __init__(self): #
+    def __init__(self):
         self.vertices = {}
 
-    def addVertex(self, vert): #
-        new_vert = GraphVertex(vert)
-        self.vertices[vert] = new_vert
+    def addVertex(self, vert):
+        new_vert = Vertex(vert)
+        self.vertices[vert] = new_vert #key - name of vertex, value - object from class Vertex
 
-    def addVerticesFromList(self, vertList): #
+    def addVerticesFromList(self, vertList):
         for vert in vertList:
             self.addVertex(vert)
 
-    def addEdge(self, fromVert, toVert, weight=1): #
+    def addEdge(self, fromVert, toVert, weight=1):
         if fromVert not in self.vertices.keys():
             self.addVertex(fromVert)
         if toVert not in self.vertices.keys():
             self.addVertex(toVert)
-        self.vertices[fromVert].addNeighbour(self.vertices[toVert], weight)
-        self.vertices[toVert].addNeighbour(self.vertices[fromVert], weight)
+        self.vertices[fromVert].addNeighbour(self.vertices[toVert], weight) #add conection from 'a' to 'b'
+        self.vertices[toVert].addNeighbour(self.vertices[fromVert], weight) #add conection from 'b' to 'a'
 
 
-    def addEdgesFromList(self, edgeList): #
+    def addEdgesFromList(self, edgeList):
         for edge in edgeList:
-            if len(edge) == 2:
+            if len(edge) == 2: #if weight is not given (its default)
                 self.addEdge(edge[0], edge[1])
             else:
                 self.addEdge(edge[0], edge[1], edge[2])
 
-    def getVertex(self,  vertKey): #dodatkowe
+    def getVertex(self,  vertKey):
         if vertKey in self.vertices.keys():
             return self.vertices[vertKey]
         else:
             return None
 
-    def getVertices(self): #
+    def getVertices(self):
         return list(self.vertices.keys())
 
-    def getEdges(self): #
+    def getEdges(self):
         list = []
         for k in self.vertices.keys():
             vert=self.vertices[k]
             for n in vert.getNeighbours():
-                if ((n.name, vert.name, vert.getWeight(self.vertices[n.name])) not in list):
+                if ((n.name, vert.name, vert.getWeight(self.vertices[n.name])) not in list): #get conections only from above diagonal
                     list.append((vert.name, n.name,  vert.getWeight(self.vertices[n.name])))
         return list
 
@@ -86,28 +86,11 @@ class Graph:
         s.view()
         return
 
-    def getShortestPath(self,fromVert, toVert):
-        paths=self.getAllPaths(fromVert, toVert)
-        print(paths)
-        weights=[]
-        for path in paths:
-            weight=0
-            for i in range(0,len(path)-1):
-                weight += self.getVertex(path[i]).getWeight(self.getVertex(path[i+1]))
-            weights.append(weight)
-        index=weights.index(min(weights))
-
-        return {weights[index]: paths[index]}
-
     def getAllPaths(self, fromVert, toVert, path=[]):
-        #minimum(values())(koszt przejścia)
-        #is values<^
-        #jak tak to przechodze (minimal weight=maxint)
-        #jak nie to kończę
-        start=self.vertices[fromVert]
-        neighbours=start.getNeighbours()
-        path =  path + [start.name]
-        if fromVert == toVert:
+        start = self.vertices[fromVert]
+        neighbours = start.getNeighbours()
+        path = path + [start.name]
+        if fromVert == toVert: #if
             return [path]
         if not neighbours:
             return
@@ -119,28 +102,56 @@ class Graph:
                     paths.append(p)
         return paths
 
+    def _getShortestPaths(self,fromVert, toVert):
+        paths = self.getAllPaths(fromVert, toVert)
+        weights = []
+        for path in paths:
+            weight = 0
+            for i in range(len(path)-1):
+                weight += self.getVertex(path[i]).getWeight(self.getVertex(path[i+1]))
+            weights.append(weight)
+        if weights:                                                         #if any conection between fromVert and toVert exist
+            index = [i for i, x in enumerate(weights) if x == min(weights)] #find every path with minimal weight
+            to_return = []
+            for i in index:
+                to_return.append(paths[i])
+            return [min(weights), to_return]
+        else:
+            return [None, None]     #if no conection exist set weight and path as None
+
     def getShortestPaths(self, fromVert):
         vertices = self.getVertices()
-        paths={}
-        message="Shortest path from vert " + fromVert +" to:\n_________________________________ \n"
+        paths = {}
+        message = "Shortest path from vert " + fromVert +" to:\n"
         for vert in vertices:
-            if vert!=fromVert:
-                paths[vert]=self.getShortestPath(fromVert, vert)
-                message+= vert + ": weight=" + str(list(paths[vert].keys())[0]) + ", path: " + str(list(paths[vert].values())[0]) +";\n"
+            if vert != fromVert:
+                paths[vert]=self._getShortestPaths(fromVert, vert)
+                message+= vert + ": weight=" +  str(list(paths[vert])[0]) + ", path: "
+                for i in list(paths[vert])[1]:
+                     message+= str(i) + ", "
+                message += "\n"
+            else:
+                message+= vert + ": weight=0, path: ['"+vert+"']\n"
+        with open("path_from_"+ fromVert + ".txt", "w") as f:
+            f.write(message)
         return message
+
 
 
 if __name__ == "__main__":
     G = Graph()
-    edges=[("Alice", "Bob"), ("Bob", "Gail"), ("Irene", "Gail"),
-           ("Carl", "Alice"), ("Gail", "Harry"), ("Irene", "Jen"),
-           ("Alice", "David", 10), ("Harry", "Jen"), ("Ernst", "Frank"),
+    edges=[ ("Bob", "Gail"), ("Irene", "Gail"),
+            ("Gail", "Harry"), ("Irene", "Jen"),
+           ("Alice", "David"), ("Harry", "Jen"), ("Ernst", "Frank"),
            ("Alice", "Ernst"), ("Jen","Gail"), ("David", "Carl"),
            ("Alice", "Frank"), ("Harry", "Irene"), ("Carl", "Frank")]
+
     G.addEdgesFromList(edges)
+    print(G.getVertices())
     #print(G.getVertices())
     #print(G.getEdges())
     print(G.getShortestPaths('Alice'))
     G.saveGraph("testGraph")
     G.open("testGraph")
 
+    print(G)

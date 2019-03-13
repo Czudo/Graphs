@@ -1,0 +1,11 @@
+Shortest path from vert Alice to:
+Bob: weight=1, path: ['Alice', 'Bob'], 
+Frank: weight=1, path: ['Alice', 'Frank'], 
+Irene: weight=3, path: ['Alice', 'Bob', 'Gail', 'Irene'], 
+David: weight=1, path: ['Alice', 'David'], 
+Harry: weight=3, path: ['Alice', 'Bob', 'Gail', 'Harry'], 
+Jen: weight=3, path: ['Alice', 'Bob', 'Gail', 'Jen'], 
+Alice: weight=0, path: ['Alice']
+Ernst: weight=1, path: ['Alice', 'Ernst'], 
+Carl: weight=2, path: ['Alice', 'Frank', 'Carl'], ['Alice', 'David', 'Carl'], 
+Gail: weight=2, path: ['Alice', 'Bob', 'Gail'], 
