@@ -74,14 +74,14 @@ class Graph:
         return vert in self.vertices.keys()
 
     def saveGraph(self, graph):
-        with open(graph+".dot", "w") as f:
+        with open("results/"+graph+".dot", "w") as f:
             f.write("strict graph{\n")
             for edge in self.getEdges():
                 f.write('"'+str(edge[0])+'" -- "'+str(edge[1])+'" [ label = ' + str(edge[2]) + ' ]\n')
             f.write("}")
 
     def open(self, graph):
-        s = Source.from_file(graph+".dot")
+        s = Source.from_file("results/"+graph+".dot")
         s.view()
         return
 
@@ -126,7 +126,7 @@ class Graph:
             paths[vert]=self._getShortestPaths(fromVert, vert)
             message += "'" + vert + "': weight=" + str(list(paths[vert])[0]) + ", list of paths: "
             message += str(list(paths[vert])[1]) + "\n"
-        with open("paths_from_"+ fromVert + ".txt", "w") as f:
+        with open("results/" + "paths_from_" + fromVert + ".txt", "w") as f:
             f.write(message)
         return message
 
