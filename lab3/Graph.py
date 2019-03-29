@@ -66,7 +66,7 @@ class Graph:
                     list.append((vert.name, n.name,  vert.getWeight(self.vertices[n.name])))
         return list
 
-    def getNeighbors(self, vertKey):
+    def getNeighbours(self, vertKey):
         vert = self.getVertex(vertKey)
         return [neighbour.name for neighbour in vert.getVertNeighbours()]
 
@@ -145,7 +145,7 @@ if __name__=="__main__":
 
     print(G.getVertices())
     print(G.getEdges())
-    print(G.getNeighbors("Alice"))
+    print(G.getNeighbours("Alice"))
 
     print("Alice" in G)
     print("Paulina" in G)
