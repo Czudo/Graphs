@@ -12,10 +12,10 @@ class ERGraph(Graph):
         super().__init__()
         vertices = [i for i in range(1, N + 1)]
         self.addVerticesFromList(vertices)
-        max = int(N * (N - 1) / 2)  #number of maximum posiblies conection between vertices
-        U = np.random.random(max).tolist()
-        allEdges = [i for i in itertools.combinations(vertices, 2)]
-        edges = [allEdges[x] for x in range(1, max) if U[x] <= p]
+        max = int(N * (N - 1) / 2)  #number of maximum posible conections beetwen all vertices
+        U = np.random.random(max).tolist() #random numbers for every posible conection
+        allEdges = [i for i in itertools.combinations(vertices, 2)]  #all posible conections
+        edges = [allEdges[x] for x in range(1, max) if U[x] <= p]  #get conections with random number larger than p
         self.addEdgesFromList(edges)
 
     def plotDegrees(self):
