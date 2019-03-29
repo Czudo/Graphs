@@ -42,9 +42,9 @@ class WSGraph(Graph):
     def plotDegrees(self):
         degrees = self.getDegrees()
         plt.figure()
-        n = 10
-        plt.hist(degrees, density=True, bins=n, label='empirical')
-        x = np.arange(min(degrees), max(degrees))
+        x = [i for i in range(min(degrees), max(degrees)+1)]
+        plt.hist(degrees, density=True, bins=x, label='empirical')
+
         #plt.plot(x, binom.pmf(x, self.N, self.p), '-o', ms=2, label='binom pmf')
         #plt.plot(x, poisson.pmf(x, self.N*self.p), '-o', ms=2, label='poisson pmf')
         plt.legend()
@@ -67,7 +67,7 @@ class WSGraph(Graph):
         return degrees
 
 if __name__ == "__main__":
-    ws = WSGraph(2000, 4, 0.3)
+    ws = WSGraph(10, 6, 0.6)
     ws.plotDegrees()
-    ws.saveGraphProperties()
+    #ws.saveGraphProperties()
 

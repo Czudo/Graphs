@@ -21,9 +21,8 @@ class ERGraph(Graph):
     def plotDegrees(self):
         degrees = self.getDegrees()
         plt.figure()
-        n = 10
-        plt.hist(degrees, density=True, bins=n, label='empirical')
-        x = np.arange(min(degrees), max(degrees))
+        x = [i for i in range(min(degrees), max(degrees)+1)]
+        plt.hist(degrees, density=True, bins=x, label='empirical')
         plt.plot(x, binom.pmf(x, self.N, self.p), '-o', ms=2, label='binom pmf')
         plt.plot(x, poisson.pmf(x, self.N*self.p), '-o', ms=2, label='poisson pmf')
         plt.legend()
@@ -49,7 +48,7 @@ class ERGraph(Graph):
 if __name__ == "__main__":
    # p = [0.1, 0.05, 0.01]
    # for i in p:
-    er = ERGraph(1000, 0.01)
+    er = ERGraph(2000, 0.01)
     er.plotDegrees()
-    er.saveGraphProperties()
+    #er.saveGraphProperties()
     # er.open('er')
