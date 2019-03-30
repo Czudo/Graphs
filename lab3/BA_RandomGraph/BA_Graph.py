@@ -33,9 +33,22 @@ class BAGraph(Graph):
     def plotDegrees(self):
         degrees = list(self.getDegrees())
         plt.figure()
-        x = [i for i in range(min(degrees), max(degrees)+1)]
-        plt.hist(degrees, density=True, bins=x, label='empirical', log=True)
+
+        [unique, counts] = np.unique(np.sort(degrees), return_counts=True)
+        x = np.log10(unique)
+        y = np.log10(counts / sum(counts))
+
+        a = sum((x-np.mean(x))*(y-np.mean(y)))/sum((x-np.mean(x))**2)
+        b = np.mean(y)-a*np.mean(x)
+        print(a)
+
+        x = [i for i in range(min(degrees), max(degrees) + 1)]
+        plt.hist(degrees, density=True, bins=x, label='empirical')
+
+        plt.plot(unique, unique**a*10**b, 'g')
         plt.xscale('log')
+        plt.yscale('log')
+        #metoda najmniejszych kwadratów
 
         #plt.plot(x, binom.pmf(x, self.N, self.p), '-o', ms=2, label='binom pmf')
         #plt.plot(x, poisson.pmf(x, self.N*self.p), '-o', ms=2, label='poisson pmf')
@@ -58,14 +71,8 @@ class BAGraph(Graph):
             degrees.append(len(self.getNeighbours(i)))
         return degrees
 
-    def _getDegrees(self):
-        degrees = {}
-        for i in self.vertices:
-            degrees[i]=len(self.getNeighbours(i))
-        return degrees
-
 if __name__ == "__main__":
-    ba = BAGraph(2000, 6, 2)
+    ba = BAGraph(2000, 1000, 1)
     #print(ba.getVertices())
     ba.plotDegrees()
     #print(ba.getEdges())
