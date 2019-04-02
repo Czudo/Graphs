@@ -3,6 +3,8 @@ import bs4
 import re
 import csv
 
+connections = []
+
 
 def clearText(urlText):
     urlText = re.sub("\n", "", urlText)  # cleaning the text from web page
@@ -13,24 +15,26 @@ def clearText(urlText):
     return urlText
 
 
-if __name__ == "__main__":
-    connections = []
-    name = "valerois"
-    level = 3
-    for k in range(0, level+1):
-        if k == 0:
-            friends = [name]
-        else:
-            friends = friendsOfFriends
-        for i in friends:
-            url = "https://www.livejournal.com/misc/fdata.bml?user="+str(i)
-            html = urlopen(url)
-            soup = bs4.BeautifulSoup(html, 'lxml')
-            friendsOfFriends = clearText(str(soup.get_text()))
-            for j in friendsOfFriends:
-                if ((i, j) not in connections) and ((j, i) not in connections):
-                    connections.append((i, j))
+def getConnections(name="valerois", lvl=0):
+    global connections
+    url = "https://www.livejournal.com/misc/fdata.bml?user="+name
+    html = urlopen(url)
+    soup = bs4.BeautifulSoup(html, 'lxml')
+    friends = list(set(clearText(str(soup.get_text()))))
+    for friend in friends:
+        if ((name, friend) not in connections) and ((friend, name) not in connections):
+            connections.append((name, friend))
+            if lvl < 1:
+                getConnections(friend, lvl+1)
 
+
+def saveFriends():
+    print(len(connections))
     with open("friends.csv", 'w') as csvFile:
         wr = csv.writer(csvFile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
         wr.writerows(connections)
+
+
+if __name__ == "__main__":
+    getConnections()
+    saveFriends()
