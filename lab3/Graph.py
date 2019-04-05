@@ -3,7 +3,8 @@ from graphviz import Source
 import os
 os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin/'
 
-class Vertex(): #class with vetrices
+
+class Vertex:  # class with vertices
     def __init__(self, name):
         self.name = name
         self.neighbours = {}
@@ -20,13 +21,14 @@ class Vertex(): #class with vetrices
     def __str__(self):
         return self.name
 
+
 class Graph:
     def __init__(self):
         self.vertices = {}
 
     def addVertex(self, vert):
         new_vert = Vertex(vert)
-        self.vertices[vert] = new_vert #key - name of vertex, value - object from class Vertex
+        self.vertices[vert] = new_vert  # key - name of vertex, value - object from class Vertex
 
     def addVerticesFromList(self, vertList):
         for vert in vertList:
@@ -37,13 +39,14 @@ class Graph:
             self.addVertex(fromVert)
         if toVert not in self.vertices.keys():
             self.addVertex(toVert)
-        self.vertices[fromVert].addNeighbour(self.vertices[toVert], weight)   #if vertex 'a' has 'b' as neighbour, then 'b' has 'a' as neighbour
+        # if vertex 'a' has 'b' as neighbour, then 'b' has 'a' as neighbour
+        self.vertices[fromVert].addNeighbour(self.vertices[toVert], weight)
         self.vertices[toVert].addNeighbour(self.vertices[fromVert], weight)
 
 
     def addEdgesFromList(self, edgeList):
         for edge in edgeList:
-            if len(edge) == 2: #if weight is not given then set weight as default
+            if len(edge) == 2:  # if weight is not given then set weight as default
                 self.addEdge(edge[0], edge[1])
             else:
                 self.addEdge(edge[0], edge[1], edge[2])
@@ -57,12 +60,13 @@ class Graph:
     def getVertices(self):
         return list(self.vertices.keys())
 
-    def getEdges(self): #
+    def getEdges(self):
         list = []
         for k in self.vertices.keys():
             vert = self.vertices[k]
             for n in vert.getVertNeighbours():
-                if ((n.name, vert.name, vert.getWeight(self.vertices[n.name])) not in list): #get only eges above diagonal in conection matrix
+                # get only edges above diagonal in connection matrix
+                if ((n.name, vert.name, vert.getWeight(self.vertices[n.name])) not in list):
                     list.append((vert.name, n.name,  vert.getWeight(self.vertices[n.name])))
         return list
 
@@ -90,38 +94,38 @@ class Graph:
         neighbours = start.getVertNeighbours()
         path = path + [start.name]
         if fromVert == toVert:
-            return [path] #if it is the last vertex return path
+            return [path]  # if it is the last vertex return path
         elif not neighbours:
             return
         paths = []
-        for vertex in neighbours: #for every neightbour for fromVert
-            if vertex.name not in path: #if vertex wasnt visited
-                tempPaths = self.getAllPaths(vertex.name, toVert, path) #get all pahs between vertex and toVert
+        for vertex in neighbours:  # for every neighbour for fromVert
+            if vertex.name not in path:  # if vertex wasnt visited
+                tempPaths = self.getAllPaths(vertex.name, toVert, path)  # get all paths between vertex and toVert
                 for p in tempPaths:
                     paths.append(p)
         return paths
 
     def _getShortestPaths(self,fromVert, toVert):
         paths = self.getAllPaths(fromVert, toVert)
-        weights = [] #list of total weights of paths
-        for path in paths: #for every found path
+        weights = []  # list of total weights of paths
+        for path in paths:  # for every found path
             weight = 0
-            for i in range(len(path)-1): #count total weight of path
+            for i in range(len(path)-1):  # count total weight of path
                 weight += self.getVertex(path[i]).getWeight(self.getVertex(path[i+1]))
             weights.append(weight)
-        if weights:   #if any conection between fromVert and toVert exists, so if weights is not empty list
-            index = [i for i, x in enumerate(weights) if x == min(weights)] #find every path with minimal weight
+        if weights:   # if any connection between fromVert and toVert exists, so if weights is not empty list
+            index = [i for i, x in enumerate(weights) if x == min(weights)]  # find every path with minimal weight
             to_return = []
             for i in index:
                 to_return.append(paths[i])
             return [min(weights), to_return]
         else:
-            return [None, None]     #if no conection exists, then set weight and path as None
+            return [None, None]     # if no connection exists, then set weight and path as None
 
     def getShortestPaths(self, fromVert):
         vertices = self.getVertices()
         paths = {}
-        message = "Shortest paths from vert '" + fromVert +"' to:\n"
+        message = "Shortest paths from vert '" + fromVert + "' to:\n"
         for vert in vertices:
             paths[vert]=self._getShortestPaths(fromVert, vert)
             message += "'" + vert + "': weight=" + str(list(paths[vert])[0]) + ", list of paths: "
@@ -138,7 +142,7 @@ if __name__=="__main__":
     edges=[("Bob", "Gail"), ("Irene", "Gail"),
            ("Gail", "Harry"), ("Irene", "Jen"),
            ("Alice", "David"), ("Harry", "Jen"), ("Ernst", "Frank"),
-           ("Alice", "Ernst", 5), ("Jen","Gail"), ("David", "Carl"),
+           ("Alice", "Ernst", 5), ("Jen", "Gail"), ("David", "Carl"),
            ("Alice", "Frank"), ("Harry", "Irene"), ("Carl", "Frank")]
 
     G.addEdgesFromList(edges)
