@@ -45,7 +45,7 @@ def RandomWalk(n, fig1, ax1, G, start):
         start = next
 
     cmd = ['magick', 'convert', '-delay', '20', '-loop', '0', 'randomwalk/rw_'
-           + str(N) + '_*.png', 'randomwalk/gif_rw1_' + str(N) + str(n) + '_steps.gif']
+           + str(N) + '_*.png', 'randomwalk/gif_rw1_' + str(N) + '_' + str(n) + 'steps.gif']
     subprocess.call(cmd, shell=True)
 
 
