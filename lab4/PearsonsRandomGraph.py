@@ -14,9 +14,9 @@ def getCoordinates(G):
 
 
 def PearsonsRandomWalk(G, N):
-    start = 0
-    G.add_node(start, coordinates=[0, 0])
-    x, y = 0, 0
+    start = 0  # name of first vertex
+    x, y = 0, 0  # start point
+    G.add_node(start, coordinates=[x, y])
 
     for next in range(1, N+1):
         phi = random.random()*2*math.pi
@@ -36,7 +36,8 @@ def distribution(G, N, n):
     Bn = []
     for i in range(n):
         x, y = getCoordinates(G[i])
-        An.append(sum(1 for k in x if k > 0))
+        An.append(sum(1 for k in x if k > 0))  # if vertex of graph is on the right side of plot
+        # if vertex of graph is on the first quarter of plot
         Bn.append(sum(1 for k in range(len(x)) if x[k] > 0 and y[k] > 0))
 
     plt.figure()
@@ -82,8 +83,8 @@ def plotOneGraph(G, N):
 
 if __name__ == '__main__':
     G = []  # list of graphs
-    n = 10  # number of graphs
-    N = 500  # number of steps
+    n = 1000  # number of graphs
+    N = 2000  # number of steps in random walk
     maxX, minX, maxY, minY = 0, 0, 0, 0
     for i in range(n):
         G.append(nx.Graph())
@@ -93,10 +94,12 @@ if __name__ == '__main__':
         maxY = max(maxY, y1)
         minY = min(minY, y2)
 
+    # plot lines x=0 and y=0
     plt.plot([minX, maxX], [0, 0], ':', linewidth=1, color='black')
     plt.plot([0, 0], [minY, maxY], ':', linewidth=1, color='black')
+
     plt.xlabel('x')
     plt.ylabel('y')
     plt.savefig('pearsonsrandomwalk/prw_graphs_' + str(n) + '_' + str(N) + 'steps.png')
     distribution(G, N, n)
-    plotOneGraph(G[0], N)
+    #plotOneGraph(G[0], N)

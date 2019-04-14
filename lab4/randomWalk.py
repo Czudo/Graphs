@@ -56,7 +56,7 @@ def getColor(G, colors, start, next):
             nx.set_edge_attributes(G, {(start, next): {'color': color}})  # set darker color
         else:  # if edges color is black
             color = colors[(start, next)]  # get the same color
-    elif (next, start) in list(colors.keys()):  # else if connection was visited, but from next to start
+    elif (next, start) in list(colors.keys()):  # if connection was visited, but from next to start
         if colors[(next, start)] != 0:  # do the same but from next to start
             color = colors[(next, start)] - 20
             nx.set_edge_attributes(G, {(next, start): {'color': color}})
