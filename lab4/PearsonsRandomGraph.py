@@ -40,21 +40,25 @@ def distribution(G, N, n):
         # if vertex of graph is on the first quarter of plot
         Bn.append(sum(1 for k in range(len(x)) if x[k] > 0 and y[k] > 0))
 
+    meanAn = np.mean(np.asarray(An)/N)
     plt.figure()
     results, edges = np.histogram(np.asarray(An)/N, density=True)
     binWidth = edges[1] - edges[0]
-    plt.bar(edges[:-1], results*binWidth, binWidth, label='empirical')
-    plt.plot([1/2, 1/2] , [0, max(results*binWidth)], 'r', label='theoretical mean')
+    plt.bar(edges[:-1], results*binWidth, binWidth, label='empirical PDF')
+    plt.plot([1 / 2, 1 / 2], [0, max(results*binWidth)], 'r', label='theoretical EX')
+    plt.plot([meanAn, meanAn], [0, max(results * binWidth)], 'g', label='empirical EX')
     plt.legend()
     plt.xlabel(r'$A_n$')
     plt.ylabel('PDF')
     plt.savefig('pearsonsrandomwalk/prw_An_' + str(n) + 'graphs_' + str(N) + 'steps.png')
 
+    meanBn = np.mean(np.asarray(Bn) / N)
     plt.figure()
     results, edges = np.histogram(np.asarray(Bn)/N, density=True)
     binWidth = edges[1] - edges[0]
-    plt.bar(edges[:-1], results * binWidth, binWidth, label='empirical')
-    plt.plot([1 / 4, 1 / 4], [0, max(results * binWidth)], 'r', label='theoretical mean')
+    plt.bar(edges[:-1], results * binWidth, binWidth, label='empirical PDF')
+    plt.plot([1 / 4, 1 / 4], [0, max(results * binWidth)], 'r', label='theoretical EX')
+    plt.plot([meanBn, meanBn], [0, max(results * binWidth)], 'g', label='empirical EX')
     plt.legend()
     plt.xlabel(r'$B_n$')
     plt.ylabel('PDF')
