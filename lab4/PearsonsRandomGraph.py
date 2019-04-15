@@ -100,6 +100,6 @@ if __name__ == '__main__':
 
     plt.xlabel('x')
     plt.ylabel('y')
-    plt.savefig('pearsonsrandomwalk/prw_graphs_' + str(n) + '_' + str(N) + 'steps.png')
+    plt.savefig('pearsonsrandomwalk/prw_' + str(n) + 'graphs_' + str(N) + 'steps.png')
     distribution(G, N, n)
     #plotOneGraph(G[0], N)
