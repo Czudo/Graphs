@@ -2,6 +2,8 @@ import numpy as np
 
 
 def phasePortrait(ax, f, u_range, v_range, args=(), n_grid=100):
+    # function created using code from webpage:
+    # http://be150.caltech.edu/2017/handouts/dynamical_systems_approaches.html
     """
     Plots the flow field with line thickness proportional to speed.
 
@@ -49,12 +51,15 @@ def phasePortrait(ax, f, u_range, v_range, args=(), n_grid=100):
 
     # Make stream plot
     ax.streamplot(uu, vv, u_vel, v_vel, linewidth=lw, arrowsize=1.2,
-                  density=1, color='blue')
-    cords_u = np.argwhere(u_vel == 0)
-    cords_v = np.argwhere(v_vel == 0)
-    points = np.intersect1d(cords_u, cords_v)
-    #ax=plotSteadyStates(ax, points)
+                  density=1, color='grey')
+
+    # cords_u = np.argwhere(u_vel == 0)
+    # cords_v = np.argwhere(v_vel == 0)
+    # points = np.intersect1d(cords_u, cords_v)
+    # ax=plotSteadyStates(ax, points)
+
     return ax
+
 
 def plotSteadyStates(ax, points):
     """Add fixed points to plot."""
