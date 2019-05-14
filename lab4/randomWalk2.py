@@ -61,6 +61,7 @@ def initRandomWalk(G, start, toVisit, name, plot=False):
     while toVisit:  # while exists vertex that was not visited but it can be
         posibleVertices = list(G.neighbors(start))
         next = random.choice(posibleVertices)
+
         if G.node[next]['value'] == np.inf:  # if its first visit in next
             G.node[next]['value'] = i
             toVisit.remove(next)  # remove next vertex from list with not visited vertices
