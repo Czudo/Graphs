@@ -6,8 +6,9 @@ import numpy as np
 import multiprocessing
 
 
-def initSIR(G):
+def fractionOfInfected():
     # set to all nodes status 'susceptible'
+    G = nx.barabasi_albert_graph(N, 3)
     nx.set_node_attributes(G, 'S', 'status')
     nx.set_node_attributes(G, 'blue', 'color')
     # get randomly first infected node and set status 'infected'
@@ -17,7 +18,7 @@ def initSIR(G):
     p = [0.5, 0.7, 0.9]
     multiprocess = multiprocessing.Pool()
     for j in p:
-        graphs = [(G.copy(), j) for i in range(1, 10000)]
+        graphs = [(G.copy(), j, 0) for i in range(1, 10000)]
         a = multiprocess.map(SIRGraph, graphs)
         a = np.mean(np.asarray(a), axis=0)
         plt.plot([i for i in range(0, len(a))], a, label=r'$p=$'+str(j))
@@ -25,9 +26,42 @@ def initSIR(G):
     plt.show()
 
 
+def initPr(args):
+    G = args[0]
+    p = args[1]
+    a = []
+    for i in range(0, 1000):
+        vertex = random.choice(list(G.nodes()))
+        H = G.copy()
+        H.node[vertex]['status'] = 'I'
+        H.node[vertex]['color'] = 'red'
+        a.append(SIRGraph((H, p, 1), name=None))
+    a = np.mean(np.asarray(a), axis=0)
+    return a.tolist()
+
+
+def properties():
+    # set to all nodes status 'susceptible'
+    G = nx.barabasi_albert_graph(N, 3)
+    nx.set_node_attributes(G, 'S', 'status')
+    nx.set_node_attributes(G, 'blue', 'color')
+
+    p = np.linspace(0.01, 0.99, 20)
+    multiprocess = multiprocessing.Pool()
+    graphs = [(G.copy(), i) for i in p]
+    a = multiprocess.map(initPr, graphs)
+    totalInfected, timeToClear, timeOfMaxInfected = list(zip(*a))
+
+    plt.plot(p, totalInfected)
+    plt.plot(p, timeToClear)
+    plt.plot(p, timeOfMaxInfected)
+    plt.show()
+
+
 def SIRGraph(args, name=None, plot=False):  # Graph and probability as tuple: (G,p)
     G = args[0]
     p = args[1]
+    temp = args[2]
     # list of nodes with 'status' 'infected'
     infected = [x for x, y in G.nodes(data=True) if y['status'] == 'I']
     step = 0
@@ -53,8 +87,14 @@ def SIRGraph(args, name=None, plot=False):  # Graph and probability as tuple: (G
         infected = [x for x, y in G.nodes(data=True) if y['status'] == 'I']
         infNodes[step] = len(infected)
     if plot:
-        createGIF(name)
-    return infNodes
+        cmd = ['magick', 'convert', '-delay', '40', '-loop', '0', str(name) + '/'
+               + str(name) + '_*.png', str(name) + '/' + str(name) + '_gif.gif']
+        subprocess.call(cmd, shell=True)
+    if temp == 0:
+        return infNodes
+    elif temp == 1:
+        recovered = [x for x, y in G.nodes(data=True) if y['status'] == 'R']
+        return [len(recovered)/len(list(G.nodes())), step, list(infNodes).index(max(infNodes))]
 
 
 def saveActualPlot(G, step, pos, name):
@@ -71,8 +111,13 @@ def saveActualPlot(G, step, pos, name):
 
 
 def createGIF(name):
-    cmd = ['magick', 'convert', '-delay', '40', '-loop', '0', str(name) + '/' + str(name) + '_*.png', str(name) + '/' + str(name) + '_gif.gif']
-    subprocess.call(cmd, shell=True)
+    G = nx.barabasi_albert_graph(N, 3)
+    nx.set_node_attributes(G, 'S', 'status')
+    nx.set_node_attributes(G, 'blue', 'color')
+    # get randomly first infected node and set status 'infected'
+    vertex = random.choice(list(G.nodes()))
+    G.node[vertex]['status'] = 'I'
+    G.node[vertex]['color'] = 'red'
 
 
 def getRandomGraphs(N, p):
@@ -86,7 +131,7 @@ def getRandomGraphs(N, p):
 
 if __name__ == '__main__':
     N = 100
-    G = nx.grid_graph(dim=[int(np.sqrt(N)), int(np.sqrt(N))])
-
-    initSIR(G)
+    #fractionOfInfected()
+    properties()
+    #createGIF()
 
