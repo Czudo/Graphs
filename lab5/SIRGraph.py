@@ -134,7 +134,7 @@ def properties(N):
 
         p = np.linspace(0.01, 0.99, 20)  # list of probabilities
         multiprocess = multiprocessing.Pool()
-        graphs = [(G.copy(), i) for i in p]  # set tuples with considered graph and every probability
+        graphs = [(G.copy(), i) for i in p]  # set tuples with copy of considered graph and every probability
         listOfProperties = multiprocess.map(_properties, graphs)  # multiprocess for every pair of graph and probability
         totalInfected, timeToClear, timeOfMaxInfected = list(zip(*listOfProperties))
 
@@ -194,7 +194,9 @@ def createGIF(N):
 
 def getRandomGraphs(N, p):
     """
-    Function creates random graphs: Erdos-Renyi - 'er', Watts–Strogatz - 'ws', Barabassi-Albert - 'ba'
+    Function creates random graphs: 2D lattice - '2d', Erdos-Renyi - 'er', Watts–Strogatz - 'ws',
+                                    Barabassi-Albert - 'ba'
+
     :param N: integer, number of nodes
     :param p: float, a probability of contagion
     :return: list of tuples: (name of graph, graph, probability p)
@@ -206,7 +208,7 @@ def getRandomGraphs(N, p):
 
 
 if __name__ == '__main__':
-    #fractionOfInfected(100)
+    # fractionOfInfected(100)
     properties(100)
-    #createGIF(30)
+    # createGIF(30)
 
