@@ -2,7 +2,7 @@ import numpy as np
 
 
 def phasePortrait(ax, f, u_range, v_range, args=(), n_grid=100):
-    # function created using code from webpage:
+    # function from webside:
     # http://be150.caltech.edu/2017/handouts/dynamical_systems_approaches.html
     """
     Plots the flow field with line thickness proportional to speed.
@@ -53,19 +53,22 @@ def phasePortrait(ax, f, u_range, v_range, args=(), n_grid=100):
     ax.streamplot(uu, vv, u_vel, v_vel, linewidth=lw, arrowsize=1.2,
                   density=1, color='grey')
 
-    # cords_u = np.argwhere(u_vel == 0)
-    # cords_v = np.argwhere(v_vel == 0)
-    # points = np.intersect1d(cords_u, cords_v)
-    # ax=plotSteadyStates(ax, points)
+    # Steady states if there is no change, so if dS**2+dI**2=0
+    cords = np.argwhere(u_vel**2 == -v_vel**2)
+    ax = plotSteadyStates(ax, cords, u, v)
 
     return ax
 
 
-def plotSteadyStates(ax, points):
-    """Add fixed points to plot."""
+def plotSteadyStates(ax, cords, u, v):
 
-    # Plot
-    for point in points:
-        ax.plot(*point, '.', color='black', markersize=20)
+    if cords.any():  # if any steady state exists
+        points_x = []
+        points_y = []
+        for cord in cords:
+            points_x.append(u[cord[0]])
+            points_y.append(v[cord[1]])
+
+        ax.plot(points_x, points_y, 'o', color='red', markersize=5, label=' steady states')
 
     return ax

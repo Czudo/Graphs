@@ -66,14 +66,14 @@ def SIRGraph(args, name=None):  # Graph, probability and parameter  as tuple: (G
         infectedNodes[step] = len(infected)
 
     if temp == 'plot':
-        cmd = ['magick', 'convert', '-delay', '40', '-loop', '0', str(name) + '/'
-               + str(name) + '_*.png', str(name) + '/' + str(name) + '_gif.gif']
+        cmd = ['magick', 'convert', '-delay', '40', '-loop', '0', 'SIRGraph/'
+               + str(name) + '_*.png', 'SIRGraph/' + str(name) + '_gif.gif']
         subprocess.call(cmd, shell=True)
     elif temp == 'infected':
         return infectedNodes
     elif temp == 'properties':
         recovered = [x for x, y in G.nodes(data=True) if y['status'] == 'R']
-        return [len(recovered) / len(list(G.nodes())), step, list(infectedNodes).index(max(infectedNodes))]
+        return [len(recovered), step, list(infectedNodes).index(max(infectedNodes))]
 
 
 def fractionOfInfected(N):
@@ -101,15 +101,15 @@ def fractionOfInfected(N):
         multiprocess = multiprocessing.Pool()
         fig1 = plt.figure()
         for j in p:
-            graphs = [(G.copy(), j, 'infected') for i in range(0, 10**3)]
+            graphs = [(G.copy(), j, 'infected') for i in range(0, 10**4)]
             a = multiprocess.map(SIRGraph, graphs)
             a = np.mean(np.asarray(a), axis=0)
-            plt.plot([i for i in range(0, len(a))], a, label=r'$p=$'+str(j))
+            plt.plot([i for i in range(0, len(a))], a, '-o', label=r'$p=$'+str(j))
         plt.xlabel("time t")
         plt.ylabel("fraction of infected nodes at time t")
-
+        plt.xlim((0,20))
         plt.legend()
-        fig1.savefig(name + '/fractionOfInfected_' + str(name))
+        fig1.savefig('SIRGraph/fractionOfInfected_' + str(name))
 
 
 def properties(N):
@@ -125,35 +125,60 @@ def properties(N):
     """
 
     consideredGraphs = getRandomGraphs(N, 0)  # create 4 graphs
+    fig1 = plt.figure()
+    ax1 = fig1.add_subplot(1, 1, 1)
+    fig2 = plt.figure()
+    ax2 = fig2.add_subplot(1, 1, 1)
+    fig3 = plt.figure()
+    ax3 = fig3.add_subplot(1, 1, 1)
+
     for k in consideredGraphs:  # for every of created graph
         name = k[0]
+        if name == '2d':
+            string = "a 2D lattice"
+        elif name == 'er':
+            string = "a Erdos-Renyi graph"
+        elif name == 'ws':
+            string = "a Watts-Strogatz graph"
+        elif name == 'ba':
+            string = "a Barabasi-Albert graph"
         G = k[1]
         # set to all nodes status 'susceptible'
         nx.set_node_attributes(G, 'S', 'status')
         nx.set_node_attributes(G, 'blue', 'color')
 
-        p = np.linspace(0.01, 0.99, 20)  # list of probabilities
+        p = np.linspace(0.01, 0.99, 50)  # list of probabilities
         multiprocess = multiprocessing.Pool()
         graphs = [(G.copy(), i) for i in p]  # set tuples with copy of considered graph and every probability
         listOfProperties = multiprocess.map(_properties, graphs)  # multiprocess for every pair of graph and probability
         totalInfected, timeToClear, timeOfMaxInfected = list(zip(*listOfProperties))
 
-        fig1 = plt.figure()
-        plt.plot(p, totalInfected, label="the total proportion of the network that becomes infected")
-        plt.plot(p, timeToClear, label="the time to clear infection")
-        plt.plot(p, timeOfMaxInfected, label="the time to the largest number of infected nodes")
+        ax1.plot(p, totalInfected, '-o', label=string)
+        ax2.plot(p, timeToClear, '-o', label=string)
+        ax3.plot(p, timeOfMaxInfected, '-o', label=string)
 
-        plt.xlabel("probability p")
-        plt.ylabel("function dependent on p")
-        plt.ylim((-0.2, max(totalInfected + timeToClear + timeOfMaxInfected)+4))
-        plt.legend()
-        fig1.savefig(name + '/properties_' + str(name))
+    ax1.set_xlabel("probability p")
+    ax1.set_ylabel("the total proportion of the network that becomes infected")
+    ax1.legend()
+
+    ax2.set_xlabel("probability p")
+    ax2.set_ylabel("the time to clear infection")
+    ax2.legend()
+
+    ax3.set_xlabel("probability p")
+    ax3.set_ylabel("the time to the largest number of infected nodes")
+    ax3.legend()
+
+    fig1.savefig('SIRGraph/totalInfected.png')
+    fig2.savefig('SIRGraph/timeToClear.png')
+    fig3.savefig('SIRGraph/timeOfMaxInfected.png')
+
 
 def _properties(args):
     G = args[0]
     p = args[1]
     listOfProperties = []
-    for i in range(0, 10**3):
+    for i in range(0, 10**4):
         # work on copy, not on original graph
         H = G.copy()
 
@@ -175,7 +200,7 @@ def saveActualPlot(G, step, pos, name):
     plt.ylim([min(coordinates[1])-0.05, max(coordinates[1])+0.05])
     plt.xlabel('x')
     plt.ylabel('y')
-    fig1.savefig(str(name) + '/' + str(name) + '_{0:04}.png'.format(step))
+    fig1.savefig('SIRGraph/' + str(name) + '_{0:04}.png'.format(step))
     plt.close()
 
 
@@ -201,14 +226,14 @@ def getRandomGraphs(N, p):
     :param p: float, a probability of contagion
     :return: list of tuples: (name of graph, graph, probability p)
     """
-    return [('2d', nx.grid_graph(dim=[np.floor(int(np.sqrt(N))), np.ceil(int(np.sqrt(N)))]), p),
+    return [('2d', nx.grid_graph(dim=[int(np.floor(np.sqrt(N))), int(np.ceil(np.sqrt(N)))]), p),
             ('er', nx.gnm_random_graph(N, 3*N), p),
             ('ws', nx.watts_strogatz_graph(N, 4, N/10), p),
             ('ba', nx.barabasi_albert_graph(N, 3), p)]
 
 
 if __name__ == '__main__':
-    # fractionOfInfected(100)
+    fractionOfInfected(100)
     properties(100)
-    # createGIF(30)
+    createGIF(30)
 

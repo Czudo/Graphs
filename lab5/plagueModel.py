@@ -12,22 +12,25 @@ def PModel(u, t, b, beta, k):
 def plotPlagueModel(S0, I0, b, beta, k):
     t = np.linspace(0, 10, 1000)
     # declare empty figures
-    fig1, ax1 = plt.subplots(1, 1)
-    fig2, ax2 = plt.subplots(1, 3)
+    fig1, ax1 = plt.subplots()
+    fig2, ax2 = plt.subplots(1, 3, sharey='all')
     # colors for plot
-    colors = ['magenta', 'cyan', 'greenyellow']
+    colors = ['magenta', 'cyan', 'greenyellow', 'blue']
 
     for i in range(0, len(I0)):
         #
         u = odeint(PModel, [S0, I0[i]], t, args=(b, beta, k))
-        ax2[i].plot(t, u[:, 0], label="$S$")
-        ax2[i].plot(t, u[:, 1], label="$I$")
+
+        ax2[i].plot(t, u[:, 0], color='blue', label="$S$")
+        ax2[i].plot(t, u[:, 1], color='red', label="$I$")
 
         ax2[i].set_title(r"$I_0 = $"+str(I0[i]), fontsize=16)
         ax2[i].set_xlabel(r"$t$", fontsize=16)
         ax2[i].set_ylabel(r"$S/I$", fontsize=16)
-        ax2[i].legend(loc='best', fontsize=12)
+
+        ax2[i].legend(loc='upper right', fontsize=12)
         ax2[i].set_xlim([0, 5])
+        ax2[i].tick_params('y', reset=True)
 
         ax1.plot(u[:, 0], u[:, 1], color=colors[i], label="$I_0 =  $"+str(I0[i]))
         ax1.set_xlabel(r"$S$")
@@ -36,7 +39,10 @@ def plotPlagueModel(S0, I0, b, beta, k):
 
     ax1 = plot.phasePortrait(ax1, PModel, (-0.5, 4), (-0.5, 4), args=(b, beta, k))
     ax1.legend(loc='best', fontsize=12)
-    plt.show()
+
+    fig1.savefig('plagueModel/phasePortrait')
+    fig2.tight_layout()
+    fig2.savefig('plagueModel/populationsIS')
 
 
 if __name__ == "__main__":
