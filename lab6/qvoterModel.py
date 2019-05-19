@@ -20,8 +20,7 @@ def getRandomGraphs(N):
                                     Barabassi-Albert - 'ba'
 
     :param N: integer, number of nodes
-    :param p: float, a probability of contagion
-    :return: list of tuples: (name of graph, graph, probability p)
+    :return: list of tuples: (name of graph, graph)
     """
     return [#('er', nx.gnm_random_graph(N, 3*N)),
             ('ws1', nx.watts_strogatz_graph(N, 4, 0.01)),
@@ -30,19 +29,30 @@ def getRandomGraphs(N):
 
 
 def qvoterModel(G):
-    P = 100  # no independent
-    N = 1000  # no MC
-    n = 100  # no spinsons
+    P = 100  # number of independent nums
+    N = 1000  # number of MC steps
+    n = 100  # number of spinsons
     q = 3
-    opinions = {i: int(2*(round(random.random())-0.5)) for i in range(n)}
+    epsilon =0.01
+    possibleSpins = [True, False]
+    opinions = {i: random.choice(possibleSpins) for i in range(n)}
     nx.set_node_attributes(G, opinions, 'spin')
 
-    print(G.nodes(data=True))
-    for k in range(P):
-        for j in range(N):
-            for i in range(n):
-                spinson = chooseSpinson()
-                spinsonAction(spinson)
+    spinsons = list(G.nodes())
+
+    for i in range(n):
+        spinson = random.choice(spinsons)
+        if random.random() <= P/n:
+            neighbors = list(G.neighbors(spinson))
+            listOfSpins = [0] * q
+            for j in range(q):
+                neighbor = random.choice(neighbors)
+                listOfSpins[j] = G.node[neighbor]['spin']
+            if len(set(listOfSpins)) == 1:  # if spins of chosen neighbors are the same
+                G.node[spinson]['spin'] = listOfSpins[0]
+            else:
+                if random.random() <= epsilon:
+                    G.node[spinson]['spin'] = not G.node[spinson]['spin']
 
 
 if __name__ == '__main__':
