@@ -18,33 +18,61 @@ def getRandomGraphs(N):
             ('BA(100,4)', nx.barabasi_albert_graph(N, 4))]
 
 
-def magnetizationOfTime(G):
-    p = np.arange(0, 0.5, 0.02)  # probability of independence
-    q = 4
+def magnetizationOfTime(args):
+    p = [0.3, 0.4, 0.5]  # probability of independence
+    pLegend = ['$p=0.3$', '$p=0.4$', '$p=0.5$']
+    q = [3, 4]
     epsilon = 0.01
     n = 10**3
 
-    nx.set_node_attributes(G, True, 'spin')
-
-    graphs = [(G.copy(), p[-1], q, epsilon) for i in range(n)]
-
+    colors = ['red', 'blue', 'green']
     multiprocess = multiprocessing.Pool()
-    a = multiprocess.map(modelNN, graphs)
+    for k in q:
+        for tupleGraphs in args:
+            name, G = tupleGraphs
+            print(name)
 
-    a = np.mean(np.asarray(a), axis=0)
-    plt.figure()
-    plt.plot(np.arange(0, 1000, 1), a, label=r'$p=$')
-    plt.show()
+            nx.set_node_attributes(G, True, 'spin')
+            plt.figure()
+            p1 = [0]*len(p)
+            p5, = plt.plot([0], color='black', marker='None',
+                           linestyle='-', label='dummy-tophead')
+            p6, = plt.plot([0], marker='None',
+                           linestyle='None', label='dummy-tophead')
+            p7, = plt.plot([0], color='black', marker='None',
+                           linestyle=':', label='dummy-tophead')
+
+            for j in range(len(p)):
+                graphs = [(G.copy(), p[j], k, epsilon) for i in range(n)]
+                result = multiprocess.map(modelNN, graphs)
+                m = np.mean(np.asarray(result), axis=0)
+
+                p1[j], = plt.plot(np.arange(0, 1000, 1), m, '-', color=colors[j], label='D ')
+                plt.plot(np.arange(0, 1000, 1), result[1], ':', color=colors[j])
+
+            plt.xlabel("time $t$")
+            plt.ylabel("magnetization $<m>$")
+            plt.title('Q-voter model, ' + str(name) + r', $q=' +str(k)+ r'$, $\epsilon=' + str(epsilon) + '$')
+
+            leg4 = plt.legend([p5, p7, p6, p1[0], p1[1], p1[2]],
+                              ['averaged', 'single run', ''] + pLegend, loc=1, ncol=2)
+            plt.gca().add_artist(leg4)
+            plt.ylim([0.3, 1.05])
+            temp = name.replace('(', '_')
+            temp = temp.replace(')', '')
+            temp = temp.replace(' ', '_')
+            temp = temp.replace(',', '_')
+            plt.savefig('magnetizationOfTime_'+str(k)+'_' + str(temp)+'.png')
 
 
 def magnetizationOfP(args):
     p = np.arange(0, 0.5, 0.02)  # probability of independence
     q = [3, 4]
     epsilon = 0.01
-    n = 10**1
+    n = 10**3
     WS = []
     for k in q:
-        plt.figure()
+        fig = plt.figure()
         multiprocess = multiprocessing.Pool()
         for tupleGraphs in args:
             name, G = tupleGraphs
@@ -61,17 +89,18 @@ def magnetizationOfP(args):
                 WS.append((m, k))
             plt.plot(p, m, label=name)
         plt.xlabel("independence factor $p$")
-        plt.ylabel("avarange magnetization $<m>$")
+        plt.ylabel("magnetization $<m>$")
         plt.title('Q-voter model, $q='+str(k)+r'$, $\epsilon='+str(epsilon)+'$')
         plt.legend()
-    plt.figure()
-    for list in WS:
-        plt.plot(p, list[0], label='$q='+str(list[1])+'$')
+        fig.savefig('magnetizationOfP_' + str(k))
+    fig = plt.figure()
+    for plotList in WS:
+        plt.plot(p, plotList[0], label='$q='+str(plotList[1])+'$')
     plt.xlabel("independence factor $p$")
-    plt.ylabel("avarange magnetization $<m>$")
+    plt.ylabel("magnetization $<m>$")
     plt.title('Q-voter model, WS(100,4,0.01)')
     plt.legend()
-    plt.show()
+    fig.savefig('magnetizationOfP_WS_100_4_0.01.png')
 
 
 def modelNN(args):
@@ -100,6 +129,5 @@ def modelNN(args):
 
 if __name__ == '__main__':
     G = getRandomGraphs(100)
-    #G = G[2][1]
-    #magnetizationOfTime(G)
-    magnetizationOfP(G)
+    magnetizationOfTime(G)
+    # magnetizationOfP(G)
