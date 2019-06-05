@@ -47,11 +47,12 @@ def SIRGraph(args, name=None):  # Graph, probability and parameter  as tuple: (G
             neighbours = list(G.neighbors(i))
 
             # random numbers for every neighbour
-            U = np.random.random(len(neighbours)).tolist()
-            for x in range(1, len(neighbours)):
-                if U[x] <= p and G.node[neighbours[x]]['status'] == 'S':
-                    G.node[neighbours[x]]['status'] = 'I'
-                    G.node[neighbours[x]]['color'] = 'red'
+
+            for x in neighbours:
+                U = random.random()
+                if U <= p and G.node[x]['status'] == 'S':
+                    G.node[x]['status'] = 'I'
+                    G.node[x]['color'] = 'red'
 
             # set checked infected node as 'reduced'
             G.node[i]['status'] = 'R'
@@ -72,7 +73,7 @@ def SIRGraph(args, name=None):  # Graph, probability and parameter  as tuple: (G
     elif temp == 'infected':
         return infectedNodes
     elif temp == 'properties':
-        recovered = [x for x, y in G.nodes(data=True) if y['status'] == 'R']
+        recovered = [x for x, y in G.nodes(data=True) if y['status'] == 'I' or y['status'] == 'R']
         return [len(recovered), step, list(infectedNodes).index(max(infectedNodes))]
 
 
@@ -101,13 +102,13 @@ def fractionOfInfected(N):
         multiprocess = multiprocessing.Pool()
         fig1 = plt.figure()
         for j in p:
-            graphs = [(G.copy(), j, 'infected') for i in range(0, 10**4)]
+            graphs = [(G.copy(), j, 'infected') for i in range(0, 10**2)]
             a = multiprocess.map(SIRGraph, graphs)
             a = np.mean(np.asarray(a), axis=0)
             plt.plot([i for i in range(0, len(a))], a, '-o', label=r'$p=$'+str(j))
         plt.xlabel("time t")
         plt.ylabel("fraction of infected nodes at time t")
-        plt.xlim((0,20))
+        plt.xlim((0, 20))
         plt.legend()
         fig1.savefig('SIRGraph/fractionOfInfected_' + str(name))
 
@@ -143,11 +144,12 @@ def properties(N):
         elif name == 'ba':
             string = "a Barabasi-Albert graph"
         G = k[1]
+        print(len(G.node))
         # set to all nodes status 'susceptible'
         nx.set_node_attributes(G, 'S', 'status')
         nx.set_node_attributes(G, 'blue', 'color')
 
-        p = np.linspace(0.01, 0.99, 50)  # list of probabilities
+        p = np.linspace(0, 1, 20)  # list of probabilities
         multiprocess = multiprocessing.Pool()
         graphs = [(G.copy(), i) for i in p]  # set tuples with copy of considered graph and every probability
         listOfProperties = multiprocess.map(_properties, graphs)  # multiprocess for every pair of graph and probability
@@ -178,7 +180,7 @@ def _properties(args):
     G = args[0]
     p = args[1]
     listOfProperties = []
-    for i in range(0, 10**4):
+    for i in range(0, 10**3):
         # work on copy, not on original graph
         H = G.copy()
 
@@ -233,7 +235,7 @@ def getRandomGraphs(N, p):
 
 
 if __name__ == '__main__':
-    fractionOfInfected(100)
+    #fractionOfInfected(100)
     properties(100)
-    createGIF(30)
+    #createGIF(30)
 
